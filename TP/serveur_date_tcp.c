@@ -13,7 +13,7 @@
 #define LG_MESSAGE 256
 
 //passage par valeur : on change pas les paramètres
-void lire_heure(char* heure){
+void lire_date(char* heure){
     FILE *fpipe;
 
     fpipe = popen("date +'%X'", "r");
@@ -25,10 +25,10 @@ void lire_heure(char* heure){
     pclose(fpipe);
 }
 
-void lire_date(char* date){
+void lire_heure(char* date){
     FILE *fpipe;
 
-    fpipe = popen("date +'%A%d%B%Y'", "r");
+    fpipe = popen("date +'%A, %d %B of %Y'", "r");
     if(fpipe == NULL){
         perror("popen");
         exit(-1);
@@ -110,11 +110,11 @@ int main(int argc, char *argv[]){
    				  close(socketDialogue);
    				  return 0;
 			default:  /* réception de n octets */
+				  char buffer[6] = "";
+				  strcpy(buffer,messageRecu);
                   if(strcmp(messageRecu, "heure")){
                     lire_heure(H);
-					printf(H);
 					nb = write(socketDialogue, H, strlen(H));
-					printf("%d", nb);
                     switch(nb){
                         case -1 : /* une erreur ! */
                                 perror("Erreur en écriture...");
@@ -124,12 +124,11 @@ int main(int argc, char *argv[]){
                             fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
                             return 0;
                         default: /* envoi de n octets */
-                            printf("Message %s envoyé! (%d octets)\n\n", H, nb);
+                            printf("Heure envoyé ! : %s (%d octets)\n\n", H, nb);
                     }
                   }
                   else if(strcmp(messageRecu, "date")){
                     lire_date(D);
-					printf(D);
                     switch(nb = write(socketDialogue, D, strlen(D))){
                         case -1 : /* une erreur ! */
                                 perror("Erreur en écriture...");
@@ -139,10 +138,10 @@ int main(int argc, char *argv[]){
                             fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
                             return 0;
                         default: /* envoi de n octets */
-                            printf("Message %s envoyé! (%d octets)\n\n", D, nb);
+                            printf("Date envoyé ! : %s (%d octets)\n\n", D, nb);
                     }
                   }
-				  printf("Message reçu : %s (%d octets)\n\n", messageRecu, lus);
+				  printf("Message reçu : %s (%d octets)\n\n", buffer, lus);
 		}
 
 	}

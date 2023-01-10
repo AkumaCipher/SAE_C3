@@ -17,33 +17,32 @@ int main(int argc, char *argv[]){
 	int nb; /* nb d’octets écrits et lus */
     int lus;
     char messageRecu[LG_MESSAGE];
-	char buffer[] = "";
+	char buffer[6] = "";
+/* 	char date[] = "date";
+	char heure[] = "heure"; */
+
+	if (strcmp(argv[3],"date")==0){
+		strcpy(buffer, "date");
+	}
+	else if (strcmp(argv[3],"heure")==0){
+		strcpy(buffer, "heure");
+	}
+
+	else{
+		printf("USAGE : %s ip port choix(date/heure)\n", argv[0]);
+	}
 
 	char ip_dest[16];
 	int  port_dest;
 
-	if (argc>2) { // si il y a au moins 2 arguments passés en ligne de commande, récupération ip et port
-        strncpy(ip_dest,argv[1],16);
-        sscanf(argv[2],"%d",&port_dest);
-		printf("%d",  argc);
-        if (strcmp(argv[3],"heure")){
-            char buffer[]="heure"; // buffer stockant le message
-        }
-        else{
-            if(strcmp(argv[3],"date")){
-                char buffer[]="date"; // buffer stockant le message
-            }
-            else{
-                printf("USAGE : %s ip port commande(heure/date)\n",argv[0]);
-                exit(-1);
-            }
-        }
-                
-    }
-    else{
-        printf("USAGE : %s ip port commande(heure/date)\n",argv[0]);
-        exit(-1);
-    }
+	if (argc>2) { // si il y a au moins 3 arguments passés en ligne de commande, récupération ip et port
+		strncpy(ip_dest,argv[1],16);
+		sscanf(argv[2],"%d",&port_dest);
+	}else{
+		printf("USAGE : %s ip port\n",argv[0]);
+		exit(-1);
+	}
+
 	// Crée un socket de communication
 	descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
 	// Teste la valeur renvoyée par l’appel système socket()
