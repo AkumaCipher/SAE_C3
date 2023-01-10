@@ -3,6 +3,7 @@
 #include <unistd.h> /* pour read, write, close, sleep */
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <string.h>
 #include <string.h> /* pour memset */
 #include <netinet/in.h> /* pour struct sockaddr_in */
 #include <arpa/inet.h> /* pour htons et inet_aton */
@@ -10,6 +11,31 @@
 #define PORT IPPORT_USERRESERVED // = 5000 (ports >= 5000 réservés pour usage explicite)
 
 #define LG_MESSAGE 256
+
+//passage par valeur : on change pas les paramètres
+void lire_heure(char* heure){
+    FILE *fpipe;
+
+    fpipe = popen("date +'%X'", "r");
+    if(fpipe == NULL){
+        perror("popen");
+        exit(-1);
+    }
+    fgets(heure, LG_MESSAGE, fpipe);
+    pclose(fpipe);
+}
+
+void lire_date(char* date){
+    FILE *fpipe;
+
+    fpipe = popen("date +'%A%d%B%Y'", "r");
+    if(fpipe == NULL){
+        perror("popen");
+        exit(-1);
+    }
+    fgets(date, LG_MESSAGE, fpipe);
+    pclose(fpipe);
+}
 
 int main(int argc, char *argv[]){
 	int socketEcoute;
@@ -22,6 +48,8 @@ int main(int argc, char *argv[]){
 	char messageRecu[LG_MESSAGE]; /* le message de la couche Application ! */
 	int ecrits, lus; /* nb d’octets ecrits et lus */
 	int retour;
+
+    int nb;
 
 	// Crée un socket de communication
 	socketEcoute = socket(PF_INET, SOCK_STREAM, 0); 
@@ -69,6 +97,8 @@ int main(int argc, char *argv[]){
 		}
 		
 		// On réception les données du client (cf. protocole)
+        char H[10];
+        char D[10];
 		lus = read(socketDialogue, messageRecu, LG_MESSAGE*sizeof(char)); // ici appel bloquant
 		switch(lus) {
 			case -1 : /* une erreur ! */ 
@@ -80,6 +110,38 @@ int main(int argc, char *argv[]){
    				  close(socketDialogue);
    				  return 0;
 			default:  /* réception de n octets */
+                  if(strcmp(messageRecu, "heure")){
+                    lire_heure(H);
+					printf(H);
+					nb = write(socketDialogue, H, strlen(H));
+					printf("%d", nb);
+                    switch(nb){
+                        case -1 : /* une erreur ! */
+                                perror("Erreur en écriture...");
+                                close(socketDialogue);
+                                exit(-3);
+                        case 0 : /* la socket est fermée */
+                            fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
+                            return 0;
+                        default: /* envoi de n octets */
+                            printf("Message %s envoyé! (%d octets)\n\n", H, nb);
+                    }
+                  }
+                  else if(strcmp(messageRecu, "date")){
+                    lire_date(D);
+					printf(D);
+                    switch(nb = write(socketDialogue, D, strlen(D))){
+                        case -1 : /* une erreur ! */
+                                perror("Erreur en écriture...");
+                                close(socketDialogue);
+                                exit(-3);
+                        case 0 : /* la socket est fermée */
+                            fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
+                            return 0;
+                        default: /* envoi de n octets */
+                            printf("Message %s envoyé! (%d octets)\n\n", D, nb);
+                    }
+                  }
 				  printf("Message reçu : %s (%d octets)\n\n", messageRecu, lus);
 		}
 

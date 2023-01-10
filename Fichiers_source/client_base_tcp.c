@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in sockaddrDistant;
 	socklen_t longueurAdresse;
 
-	char buffer[]="Hello server!"; // buffer stockant le message
+	char buffer[]==argv[3]; // buffer stockant le message
 	int nb; /* nb d’octets écrits et lus */
 
 	char ip_dest[16];

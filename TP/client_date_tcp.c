@@ -7,30 +7,43 @@
 #include <netinet/in.h> /* pour struct sockaddr_in */
 #include <arpa/inet.h> /* pour htons et inet_aton */
 
+#define LG_MESSAGE 256
+
 int main(int argc, char *argv[]){
 	int descripteurSocket;
 	struct sockaddr_in sockaddrDistant;
 	socklen_t longueurAdresse;
 
-	char buffer[]="Hello server!"; // buffer stockant le message
 	int nb; /* nb d’octets écrits et lus */
+    int lus;
+    char messageRecu[LG_MESSAGE];
+	char buffer[] = "";
 
 	char ip_dest[16];
 	int  port_dest;
 
-	// Pour pouvoir contacter le serveur, le client doit connaître son adresse IP et le port de comunication
-	// Ces 2 informations sont passées sur la ligne de commande
-	// Si le serveur et le client tournent sur la même machine alors l'IP locale fonctionne : 127.0.0.1
-	// Le port d'écoute du serveur est 5000 dans cet exemple, donc en local utiliser la commande :
-	// ./client_base_tcp 127.0.0.1 5000
-	if (argc>1) { // si il y a au moins 2 arguments passés en ligne de commande, récupération ip et port
-		strncpy(ip_dest,argv[1],16);
-		sscanf(argv[2],"%d",&port_dest);
-	}else{
-		printf("USAGE : %s ip port\n",argv[0]);
-		exit(-1);
-	}
-
+	if (argc>2) { // si il y a au moins 2 arguments passés en ligne de commande, récupération ip et port
+        strncpy(ip_dest,argv[1],16);
+        sscanf(argv[2],"%d",&port_dest);
+		printf("%d",  argc);
+        if (strcmp(argv[3],"heure")){
+            char buffer[]="heure"; // buffer stockant le message
+        }
+        else{
+            if(strcmp(argv[3],"date")){
+                char buffer[]="date"; // buffer stockant le message
+            }
+            else{
+                printf("USAGE : %s ip port commande(heure/date)\n",argv[0]);
+                exit(-1);
+            }
+        }
+                
+    }
+    else{
+        printf("USAGE : %s ip port commande(heure/date)\n",argv[0]);
+        exit(-1);
+    }
 	// Crée un socket de communication
 	descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
 	// Teste la valeur renvoyée par l’appel système socket()
@@ -75,6 +88,20 @@ int main(int argc, char *argv[]){
 		default: /* envoi de n octets */
 			printf("Message %s envoyé! (%d octets)\n\n", buffer, nb);
 	}
+
+    lus = read(descripteurSocket, messageRecu, LG_MESSAGE*sizeof(char)); // ici appel bloquant
+        switch(lus) {
+            case -1 : /* une erreur ! */ 
+                  perror("read"); 
+                  close(descripteurSocket); 
+                  exit(-5);
+            case 0  : /* la socket est fermée */
+                  fprintf(stderr, "La socket a été fermée par le client !\n\n");
+                     close(descripteurSocket);
+                     return 0;
+            default:  /* réception de n octets */
+                  printf("Message reçu : %s (%d octets)\n\n", messageRecu, lus);
+        }
 
 	// On ferme la ressource avant de quitter
 	close(descripteurSocket);
