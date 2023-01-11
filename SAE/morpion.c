@@ -75,42 +75,42 @@ int jouerobot(struct morpion morp){
 }
 void gagnant(struct morpion morp){
     int cpt;
-    char ancien=morp.tableaujou[0];
-    char gagnant;
+    char *ancien=&morp.tableaujou[0];
+    char *gagnant;
     int win=0;
     //strcmp à la place des : "morp.tableaujou[i+b]==ancien"
     //strcpy à la place de : "ancien=morp.tableaujou[0]; & gagnant=morp.tableaujou[i+b];"
     for(int i=0;i<7;i+3){ //Verif ligne
         for(int b=0;b<3;b++){
-            if(morp.tableaujou[i+b]==ancien){
+            if(strcmp(&morp.tableaujou[i+b],ancien)==0){
                 cpt++;
             }
             else{
                 cpt=1;
             }
             if(cpt==3){
-                gagnant=morp.tableaujou[i+b];
+                strcpy(gagnant,&morp.tableaujou[i+b]);
                 win=1;
             }
         }   
     }
     for(int i=0;i<3;i++){ //Verif colonne
         for(int b=0;b<3;b++){
-            if(morp.tableaujou[i+b*3]==ancien){
+            if(strcmp(&morp.tableaujou[i+b*3],ancien)==0){
                 cpt++;
             }
             else{
                 cpt=1;
             }
             if(cpt==3){
-                gagnant=morp.tableaujou[i+b];
+                strcpy(gagnant,&morp.tableaujou[i+b]);
                 win=1;
             }
         }
     }
     for(int i=0;i<3;i++){ //Diagonale (0-->4-->8)
         int b=0;
-        if(morp.tableaujou[i+(b*3)]==ancien){
+        if(strcmp(&morp.tableaujou[i+(b*3)],ancien)==0){
                 cpt++;
                 b++;
             }    
@@ -118,26 +118,26 @@ void gagnant(struct morpion morp){
                 cpt=1;
             }
         if(cpt==3){
-                gagnant=morp.tableaujou[i+(b*3)];
+                strcpy(gagnant,&morp.tableaujou[i+(b*3)]);
                 win=1;
             }
         
     }
 
     for(int i=6;i>-1;i-2){ //Diagonale (6-->4-->2)
-       if(morp.tableaujou[i]==ancien){
+       if(strcmp(&morp.tableaujou[i],ancien)==0){
                 cpt++;
             }    
         else{
                 cpt=1;
             }
         if(cpt==3){
-                gagnant=morp.tableaujou[i];
+                strcpy(gagnant,&morp.tableaujou[i]);
                 win=1;
             } 
     }
     if(win==1){
-        morp.gagnant=gagnant;
+        morp.gagnant=*gagnant;
     }
 }
 
@@ -158,7 +158,8 @@ void affgagnant(struct morpion morp){
 }
 
 int main(){
-    srand(time(NULL));
+    time_t t;
+    srand(t);
     struct morpion morp;
     struct morpion *mo=&morp;
     initmorp(mo);
