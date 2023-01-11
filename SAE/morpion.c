@@ -11,24 +11,25 @@
 #define taille_tab 9
 
 struct morpion{
+    /*Structure du morpion*/
     int tableaupos[taille_tab];
     char tableaujou[taille_tab];
     int coupjou;
     char gagnant;
-    
 };
-
+/* Les fonctions appelées avec un pointeur sont les fonctions modifiant la structure morpion*/
 void initmorp(struct morpion *morp){
-    
+    /*Fonction d'initialisation du morpion*/
     for (int i=0;i<taille_tab;i++){
         morp->tableaupos[i]=i+1;
         morp->tableaujou[i]=' ';
         morp->coupjou=0;
-        morp->gagnant='p';
     }
+    morp->gagnant=' ';
 }
 
 void affmorp(struct morpion morp){
+    /*Fonction d'affichage du morpion (avec les cases jouées & celui avec les cases avec leur ID)*/
     printf("\n");
     for (int i=0;i<taille_tab;i++){
         if(i%3==0){
@@ -46,6 +47,7 @@ void affmorp(struct morpion morp){
 }
 
 void jouercase(struct morpion *morp,int coord,bool xo){
+    /* Fonction permettant de jour à la case demandée*/
     if(coord<1 || coord>9){
 
     }
@@ -61,6 +63,7 @@ void jouercase(struct morpion *morp,int coord,bool xo){
     }
 }
 int jouerobot(struct morpion morp){
+    /* Fonction faisant jouer le serveur aléatoirement (retourn la case choisie)*/
     while(1){
         int a = rand()%10;
         while(a==0){
@@ -73,97 +76,66 @@ int jouerobot(struct morpion morp){
 
     
 }
-void gagnant(struct morpion morp){
-    int cpt;
-    char *ancien=&morp.tableaujou[0];
-    char *gagnant;
-    int win=0;
-    //strcmp à la place des : "morp.tableaujou[i+b]==ancien"
-    //strcpy à la place de : "ancien=morp.tableaujou[0]; & gagnant=morp.tableaujou[i+b];"
-    for(int i=0;i<7;i+3){ //Verif ligne
-        for(int b=0;b<3;b++){
-            if(strcmp(&morp.tableaujou[i+b],ancien)==0){
-                cpt++;
+int gagnant(struct morpion *morp){
+    /* Fonction vérifiant s'il y a un gagnant*/
+    for(int i=0;i<9;i+=3){ //Verif ligne
+        if(morp->tableaujou[0+i]==morp->tableaujou[1+i] && morp->tableaujou[1+i]==morp->tableaujou[2+i] ){
+            /* Vérifie que les cases identiques ne sont pas vides*/
+            if((morp->tableaujou[0+i]!=' ' && morp->tableaujou[1+i]!=' ' && morp->tableaujou[2+i]!=' ')){
+                morp->gagnant=morp->tableaujou[0+i]; 
+                return 0;
             }
-            else{
-                cpt=1;
-            }
-            if(cpt==3){
-                strcpy(gagnant,&morp.tableaujou[i+b]);
-                win=1;
-            }
-        }   
+        }
     }
     for(int i=0;i<3;i++){ //Verif colonne
-        for(int b=0;b<3;b++){
-            if(strcmp(&morp.tableaujou[i+b*3],ancien)==0){
-                cpt++;
-            }
-            else{
-                cpt=1;
-            }
-            if(cpt==3){
-                strcpy(gagnant,&morp.tableaujou[i+b]);
-                win=1;
-            }
+        if(morp->tableaujou[0+i]==morp->tableaujou[3+i] && morp->tableaujou[3+i]==morp->tableaujou[6+i] ){
+           /* Vérifie que les cases identiques ne sont pas vides*/
+           if(morp->tableaujou[0+i]!=' ' && morp->tableaujou[3+i]!=' ' && morp->tableaujou[6+i]!=' '){
+                morp->gagnant=morp->tableaujou[0+i]; 
+                return 0;
+            } 
         }
     }
-    for(int i=0;i<3;i++){ //Diagonale (0-->4-->8)
-        int b=0;
-        if(strcmp(&morp.tableaujou[i+(b*3)],ancien)==0){
-                cpt++;
-                b++;
-            }    
-        else{
-                cpt=1;
+    //Verif diag 1
+    if(morp->tableaujou[0]==morp->tableaujou[4] && morp->tableaujou[4]==morp->tableaujou[8] ){
+           /* Vérifie que les cases identiques ne sont pas vides*/
+           if(morp->tableaujou[0]!=' ' && morp->tableaujou[4]!=' ' && morp->tableaujou[8]!=' '){
+                morp->gagnant=morp->tableaujou[0]; 
+                return 0;
             }
-        if(cpt==3){
-                strcpy(gagnant,&morp.tableaujou[i+(b*3)]);
-                win=1;
-            }
-        
     }
-
-    for(int i=6;i>-1;i-2){ //Diagonale (6-->4-->2)
-       if(strcmp(&morp.tableaujou[i],ancien)==0){
-                cpt++;
-            }    
-        else{
-                cpt=1;
-            }
-        if(cpt==3){
-                strcpy(gagnant,&morp.tableaujou[i]);
-                win=1;
+    //Verif diag 2
+     if(morp->tableaujou[2]==morp->tableaujou[4] && morp->tableaujou[4]==morp->tableaujou[6] ){
+           /* Vérifie que les cases identiques ne sont pas vides*/
+           if(morp->tableaujou[2]!=' ' && morp->tableaujou[4]!=' ' && morp->tableaujou[6]!=' '){
+                morp->gagnant=morp->tableaujou[2]; 
+                return 0;
             } 
     }
-    if(win==1){
-        morp.gagnant=*gagnant;
-    }
+    return 0;
 }
-
 void affgagnant(struct morpion morp){
-    int a=0;
-    if(strcmp("O",&morp.gagnant)==0){
-        printf("Le gagnant est le joueur 2 avec le symbole O");
+    /* Fonction d'affichage du message de fin avec le gagnant */
+    affmorp(morp);
+    if('O'==morp.gagnant){
+        printf("\nLe gagnant est le joueur 2 avec le symbole O");
     }
-    else{
-        if(strcmp("X",&morp.gagnant)==0){
-            printf("Le gagnant est le joueur 1 avec le symbole X");
-        }
-        else{
-            printf("Egalite");
-        }
-    
+    if('X'==morp.gagnant){
+        printf("\nLe gagnant est le joueur 1 avec le symbole X");
     }
+    if(' '==morp.gagnant){
+        printf("\nEgalite\n");
+    }   
 }
 
 int main(){
-    time_t t;
-    srand(t);
+    /* Main pour les tests*/
     struct morpion morp;
     struct morpion *mo=&morp;
     initmorp(mo);
-    while(morp.coupjou!=9 || morp.gagnant=='p'){
+    while((morp.coupjou!=9)){
+        time_t t;
+        srand(t);
         int caserobot=jouerobot(morp);
         int a=0;
         if(morp.coupjou%2==0){
@@ -172,13 +144,17 @@ int main(){
         else{
             a=0;
         }
+        int w;
         jouercase(mo,caserobot,a);
-        gagnant(morp);
+        w=gagnant(mo);
         if(morp.coupjou!=9){
             affmorp(morp);
         }
+        if(morp.gagnant!=' '){
+            break;
+        }
+        
     }
-    affmorp(morp);
     affgagnant(morp);
     printf("\n");
     return 0;
