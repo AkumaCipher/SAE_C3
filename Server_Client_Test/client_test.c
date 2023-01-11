@@ -37,12 +37,13 @@ int main(int argc, char *argv[])
     // Crée un socket de communication
     while (1)
     {
-        while(strcmp(buffer,"")==0){
+        while (strcmp(buffer, "") == 0)
+        {
             printf("Choisissez entre heure ou date : ");
-            scanf("%s",buffer);
-            if(strcmp(buffer,"heure")!=0 && strcmp(buffer,"date")!=0)
+            scanf("%s", buffer);
+            if (strcmp(buffer, "heure") != 0 && strcmp(buffer, "date") != 0)
             {
-                strcpy(buffer,"");
+                strcpy(buffer, "");
                 printf("Choisissez une bonne option (heure/date) !\n");
             }
         }
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
             return 0;
         default: /* envoi de n octets */
             printf("Message %s envoyé! (%d octets)\n\n", buffer, nb);
-            strcpy(buffer,"");
+            strcpy(buffer, "");
         }
 
         lus = read(descripteurSocket, messageRecu, LG_MESSAGE * sizeof(char)); // ici appel bloquant
