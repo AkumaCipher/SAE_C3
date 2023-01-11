@@ -162,6 +162,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	// On ferme la ressource avant de quitter
+	close(socketDialogue);
 	close(socketEcoute);
 	return 0;
 }
