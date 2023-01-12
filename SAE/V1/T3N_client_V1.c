@@ -64,7 +64,6 @@ void jouercase(struct morpion *morp, int coord, bool xo)
     }
     else
     {
-        morp->coupjou++;
         morp->tableaupos[coord - 1] = 0;
         if (xo == 1)
         {
@@ -76,71 +75,7 @@ void jouercase(struct morpion *morp, int coord, bool xo)
         }
     }
 }
-int jouerobot(struct morpion morp)
-{
-    /* Fonction faisant jouer le serveur aléatoirement (retourn la case choisie)*/
-    while (1)
-    {
-        int a = rand() % 10;
-        while (a == 0)
-        {
-            a = rand() % 10;
-        }
-        if (morp.tableaupos[a - 1] != 0)
-        {
-            return a;
-        }
-    }
-}
-int gagnant(struct morpion *morp)
-{
-    /* Fonction vérifiant s'il y a un gagnant*/
-    for (int i = 0; i < 9; i += 3)
-    { // Verif ligne
-        if (morp->tableaujou[0 + i] == morp->tableaujou[1 + i] && morp->tableaujou[1 + i] == morp->tableaujou[2 + i])
-        {
-            /* Vérifie que les cases identiques ne sont pas vides*/
-            if ((morp->tableaujou[0 + i] != ' ' && morp->tableaujou[1 + i] != ' ' && morp->tableaujou[2 + i] != ' '))
-            {
-                morp->gagnant = morp->tableaujou[0 + i];
-                return 0;
-            }
-        }
-    }
-    for (int i = 0; i < 3; i++)
-    { // Verif colonne
-        if (morp->tableaujou[0 + i] == morp->tableaujou[3 + i] && morp->tableaujou[3 + i] == morp->tableaujou[6 + i])
-        {
-            /* Vérifie que les cases identiques ne sont pas vides*/
-            if (morp->tableaujou[0 + i] != ' ' && morp->tableaujou[3 + i] != ' ' && morp->tableaujou[6 + i] != ' ')
-            {
-                morp->gagnant = morp->tableaujou[0 + i];
-                return 0;
-            }
-        }
-    }
-    // Verif diag 1
-    if (morp->tableaujou[0] == morp->tableaujou[4] && morp->tableaujou[4] == morp->tableaujou[8])
-    {
-        /* Vérifie que les cases identiques ne sont pas vides*/
-        if (morp->tableaujou[0] != ' ' && morp->tableaujou[4] != ' ' && morp->tableaujou[8] != ' ')
-        {
-            morp->gagnant = morp->tableaujou[0];
-            return 0;
-        }
-    }
-    // Verif diag 2
-    if (morp->tableaujou[2] == morp->tableaujou[4] && morp->tableaujou[4] == morp->tableaujou[6])
-    {
-        /* Vérifie que les cases identiques ne sont pas vides*/
-        if (morp->tableaujou[2] != ' ' && morp->tableaujou[4] != ' ' && morp->tableaujou[6] != ' ')
-        {
-            morp->gagnant = morp->tableaujou[2];
-            return 0;
-        }
-    }
-    return 0;
-}
+
 void affgagnant(struct morpion morp)
 {
     /* Fonction d'affichage du message de fin avec le gagnant */
@@ -171,7 +106,7 @@ int main(int argc, char *argv[])
     int nb; /* nb d’octets écrits et lus */
     int lus;
     char messageRecu[LG_MESSAGE];
-    int buffer;
+    char buffer;
 
     char ip_dest[16];
     int port_dest;
@@ -237,7 +172,7 @@ int main(int argc, char *argv[])
             close(descripteurSocket);
             return 0;
         default:
-            if (*messageRecu == 'y')
+            if (strcmp(*messageRecu,"start")==0)
             {
                 start = true;
                 printf("Début de la partie !\n");
@@ -246,22 +181,16 @@ int main(int argc, char *argv[])
         // Création du morpion pour ce socket.
         struct morpion morp;
         struct morpion *mo = &morp;
-        initmorp(mo);
-        while (start == true)
+        initmorp(mo); //Initialisation du morpion
+        while (start == true) //Lorsque start est vrai, on démarre la partie (reçu du serveur)
         {
             time_t t;
             srand(t);
-
             affmorp(morp);
-            if (morp.coupjou == 9)
-            {
-                break;
-            }
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &buffer);
             jouercase(mo, buffer, 1);
             nb = write(descripteurSocket, &buffer, 1);
-
             switch (nb)
             {
             case -1: /* une erreur ! */
@@ -274,10 +203,6 @@ int main(int argc, char *argv[])
             default:
                 printf("\nCase choisie et envoyee : %d\n", buffer);
             }
-            if (morp.coupjou == 9)
-            {
-                break;
-            }
             lus = read(descripteurSocket, &buffer, 1);
             switch (lus)
             {
@@ -289,12 +214,52 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
                 close(descripteurSocket);
             default:
-                jouercase(mo, buffer, 0);
+                char ordre;
+                int cases;
+                sscanf(&buffer, "%s %d" , ordre, cases );
+                if(strcmp(&ordre,"continue")==0){
+                    jouercase(mo, cases, 0);
+                }
+                else {
+                    if(strcmp(&ordre,"Owins")==0){
+                        jouercase(mo,cases,0);
+                        affmorp(morp);
+                        morp.gagnant="O";
+                        affgagnant(morp);
+                        start=false;
+                    }
+                    else{
+                        if(strcmp(&ordre,"Xwins")==0){
+                            affmorp(morp);
+                            morp.gagnant="X";
+                            affgagnant(morp);
+                            start=false;
+                        }
+                        else{
+                            if(strcmp(&ordre,"Oend")==0){
+                                jouercase(mo,cases,0);
+                                affmorp(morp);
+                                printf("Dernier coup joué par le serveur");
+                                morp.gagnant=" ";
+                                affgagnant(morp);
+                                start=false;
+                            }
+                            else{
+                                affmorp(morp);
+                                morp.gagnant=" ";
+                                printf("Dernier coup joué par le joueur");
+                                affgagnant(morp);
+                                start=false;
+                            }
+                        }
+                    }
+                }
+                
             }
         }
     }
 
-    printf("Toutes les cases ont étés remplis, fin du jeu !");
+    printf("La partie est terminée");
     // On ferme la ressource avant de quitter
     close(descripteurSocket);
 
