@@ -59,11 +59,11 @@ void affmorp(struct morpion morp)
 void jouercase(struct morpion *morp, int coord, bool xo)
 {
     /* Fonction permettant de jour à la case demandée*/
-    if (coord < 1 || coord > 9)
+    if (coord < 1 || coord > 9) //Verif si case dans les "clous"
     {
     }
     else
-    {
+    { //L'indice est donnée par le joueur de 1 à 9 mais les indices tableau de 0 & 8 donc -1 
         morp->tableaupos[coord - 1] = 0;
         if (xo == 1)
         {
@@ -97,7 +97,7 @@ void affgagnant(struct morpion morp)
 int main(int argc, char *argv[])
 {
 
-    bool start = false;
+    bool start = false; //Condition de début de partie
 
     int descripteurSocket;
     struct sockaddr_in sockaddrDistant;
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    while (1)
-    {
+    //while (1)
+    //{
         // Crée un socket de communication
 
         descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         }
         printf("Connexion au serveur %s:%d réussie!\n", ip_dest, port_dest);
 
-        start = false;
+        //start=false;
 
         lus = read(descripteurSocket, messageRecu, LG_MESSAGE * sizeof(char)); // ici appel bloquant
         switch (lus)
@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
             }
         }
     
-    }
+    //}
     printf("La partie est terminée");
     // On ferme la ressource avant de quitter
     close(descripteurSocket);
