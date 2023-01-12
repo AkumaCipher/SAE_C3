@@ -182,11 +182,11 @@ int main(int argc, char *argv[])
         struct morpion morp;
         struct morpion *mo = &morp;
         initmorp(mo); //Initialisation du morpion
+        int f=0;
         while (start == true) //Lorsque start est vrai, on démarre la partie (reçu du serveur)
         {
             time_t t;
             srand(t);
-            int f=0;
             if(f==0){
                 affmorp(morp);
                 f++;
