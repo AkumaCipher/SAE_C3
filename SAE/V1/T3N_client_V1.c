@@ -60,11 +60,11 @@ void affmorp(struct morpion morp)
 void jouercase(struct morpion *morp, int coord, bool xo)
 {
     /* Fonction permettant de jour à la case demandée*/
-    if (coord < 1 || coord > 9) //Verif si case dans les "clous"
+    if (coord < 1 || coord > 9) // Verif si case dans les "clous"
     {
     }
     else
-    { //L'indice est donnée par le joueur de 1 à 9 mais les indices tableau de 0 & 8 donc -1 
+    { // L'indice est donnée par le joueur de 1 à 9 mais les indices tableau de 0 & 8 donc -1
         morp->tableaupos[coord - 1] = 0;
         if (xo == 1)
         {
@@ -98,7 +98,7 @@ void affgagnant(struct morpion morp)
 int main(int argc, char *argv[])
 {
 
-    bool start = false; //Condition de début de partie
+    bool start = false; // Condition de début de partie
 
     int descripteurSocket;
     struct sockaddr_in sockaddrDistant;
@@ -123,154 +123,163 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    //while (1)
+    // while (1)
     //{
-        // Crée un socket de communication
+    //  Crée un socket de communication
 
-        descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
-        // Teste la valeur renvoyée par l’appel système socket()
-        if (descripteurSocket < 0)
+    descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
+    // Teste la valeur renvoyée par l’appel système socket()
+    if (descripteurSocket < 0)
+    {
+        perror("Erreur en création de la socket..."); // Affiche le message d’erreur
+        exit(-1);                                     // On sort en indiquant un code erreur
+    }
+    printf("Socket créée! (%d)\n", descripteurSocket);
+
+    // Remplissage de sockaddrDistant (structure sockaddr_in identifiant la machine distante)
+    // Obtient la longueur en octets de la structure sockaddr_in
+    longueurAdresse = sizeof(sockaddrDistant);
+    // Initialise à 0 la structure sockaddr_in
+    // memset sert à faire une copie d'un octet n fois à partir d'une adresse mémoire donnée
+    // ici l'octet 0 est recopié longueurAdresse fois à partir de l'adresse &sockaddrDistant
+    memset(&sockaddrDistant, 0x00, longueurAdresse);
+    // Renseigne la structure sockaddr_in avec les informations du serveur distant
+    sockaddrDistant.sin_family = AF_INET;
+    // On choisit le numéro de port d’écoute du serveur
+    sockaddrDistant.sin_port = htons(port_dest);
+    // On choisit l’adresse IPv4 du serveur
+    inet_aton(ip_dest, &sockaddrDistant.sin_addr);
+
+    // Débute la connexion vers le processus serveur distant
+    if ((connect(descripteurSocket, (struct sockaddr *)&sockaddrDistant, longueurAdresse)) == -1)
+    {
+        perror("Erreur de connection avec le serveur distant...");
+        close(descripteurSocket);
+        exit(-2); // On sort en indiquant un code erreur
+    }
+    printf("Connexion au serveur %s:%d réussie!\n", ip_dest, port_dest);
+
+    // start=false;
+
+    lus = read(descripteurSocket, messageRecu, LG_MESSAGE * sizeof(char)); // ici appel bloquant
+    switch (lus)
+    {
+    case -1: /* une erreur ! */
+        perror("read");
+        close(descripteurSocket);
+        exit(-3);
+    case 0: /* la socket est fermée */
+        fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
+        close(descripteurSocket);
+        return 0;
+    default:
+        if (strcmp(messageRecu, "start") == 0)
         {
-            perror("Erreur en création de la socket..."); // Affiche le message d’erreur
-            exit(-1);                                     // On sort en indiquant un code erreur
+            start = true;
+            printf("Début de la partie !\n");
         }
-        printf("Socket créée! (%d)\n", descripteurSocket);
-
-        // Remplissage de sockaddrDistant (structure sockaddr_in identifiant la machine distante)
-        // Obtient la longueur en octets de la structure sockaddr_in
-        longueurAdresse = sizeof(sockaddrDistant);
-        // Initialise à 0 la structure sockaddr_in
-        // memset sert à faire une copie d'un octet n fois à partir d'une adresse mémoire donnée
-        // ici l'octet 0 est recopié longueurAdresse fois à partir de l'adresse &sockaddrDistant
-        memset(&sockaddrDistant, 0x00, longueurAdresse);
-        // Renseigne la structure sockaddr_in avec les informations du serveur distant
-        sockaddrDistant.sin_family = AF_INET;
-        // On choisit le numéro de port d’écoute du serveur
-        sockaddrDistant.sin_port = htons(port_dest);
-        // On choisit l’adresse IPv4 du serveur
-        inet_aton(ip_dest, &sockaddrDistant.sin_addr);
-
-        // Débute la connexion vers le processus serveur distant
-        if ((connect(descripteurSocket, (struct sockaddr *)&sockaddrDistant, longueurAdresse)) == -1)
+    }
+    // Création du morpion pour ce socket.
+    struct morpion morp;
+    struct morpion *mo = &morp;
+    initmorp(mo); // Initialisation du morpion
+    int f = 0;
+    while (start == true) // Lorsque start est vrai, on démarre la partie (reçu du serveur)
+    {
+        time_t t;
+        srand(t);
+        if (f == 0)
         {
-            perror("Erreur de connection avec le serveur distant...");
-            close(descripteurSocket);
-            exit(-2); // On sort en indiquant un code erreur
+            affmorp(morp);
+            f++;
         }
-        printf("Connexion au serveur %s:%d réussie!\n", ip_dest, port_dest);
 
-        //start=false;
-
-        lus = read(descripteurSocket, messageRecu, LG_MESSAGE * sizeof(char)); // ici appel bloquant
-        switch (lus)
-        {
-        case -1: /* une erreur ! */
-            perror("read");
-            close(descripteurSocket);
-            exit(-3);
-        case 0: /* la socket est fermée */
-            fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
-            close(descripteurSocket);
-            return 0;
-        default:
-            if (strcmp(messageRecu,"start")==0)
-            {
-                start = true;
-                printf("Début de la partie !\n");
-            }
-        }
-        // Création du morpion pour ce socket.
-        struct morpion morp;
-        struct morpion *mo = &morp;
-        initmorp(mo); //Initialisation du morpion
-        int f=0;
-        while (start == true) //Lorsque start est vrai, on démarre la partie (reçu du serveur)
-        {
-            time_t t;
-            srand(t);
-            if(f==0){
-                affmorp(morp);
-                f++;
-            }
-            
-            int cases;
-            printf("\n\nChoisissez votre case : ");
-            scanf("%d", &cases);
-            while (cases < 1 || cases > 9 || morp.tableaupos[cases-1]==0){ //Si le joueur rentre des bêtises
+        int cases;
+        printf("\n\nChoisissez votre case : ");
+        scanf("%d", &cases);
+        while (cases < 1 || cases > 9 || morp.tableaupos[cases - 1] == 0)
+        { // Si le joueur rentre des bêtises
             affmorp(morp);
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
-					}
-            jouercase(mo, cases, 1);
-            sprintf(buffer,"%d",cases);
-            nb = write(descripteurSocket, buffer, 4);
-            switch (nb)
+        }
+        jouercase(mo, cases, 1);
+        sprintf(buffer, "%d", cases);
+        nb = write(descripteurSocket, buffer, 4);
+        switch (nb)
+        {
+        case -1: /* une erreur ! */
+            perror("Erreur en écriture...");
+            close(descripteurSocket);
+            exit(-4);
+        case 0: /* la socket est fermée */
+            fprintf(stderr, "La socket a été fermée par le client !\n\n");
+            return 0;
+        default:
+            printf("\nCase choisie et envoyee : %d\n", cases);
+        }
+        lus = read(descripteurSocket, buffer, LG_MESSAGE);
+        switch (lus)
+        {
+        case -1:
+            perror("read");
+            close(descripteurSocket);
+            exit(-5);
+        case 0:
+            fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
+            close(descripteurSocket);
+        default:
+            char ordre;
+            int cases;
+            sscanf(buffer, "%s %d", &ordre, &cases);
+            if (strcmp(&ordre, "continue") == 0)
             {
-            case -1: /* une erreur ! */
-                perror("Erreur en écriture...");
-                close(descripteurSocket);
-                exit(-4);
-            case 0: /* la socket est fermée */
-                fprintf(stderr, "La socket a été fermée par le client !\n\n");
-                return 0;
-            default:
-                printf("\nCase choisie et envoyee : %d\n", cases);
+                jouercase(mo, cases, 0);
+                affmorp(morp);
             }
-            lus = read(descripteurSocket, buffer, LG_MESSAGE);
-            switch (lus)
+            else
             {
-            case -1:
-                perror("read");
-                close(descripteurSocket);
-                exit(-5);
-            case 0:
-                fprintf(stderr, "La socket a été fermée par le serveur !\n\n");
-                close(descripteurSocket);
-            default:
-                char ordre;
-                int cases;
-                sscanf(buffer, "%s %d" , &ordre, &cases );
-                if(strcmp(&ordre,"continue")==0){
+                if (strcmp(&ordre, "Owins") == 0)
+                {
                     jouercase(mo, cases, 0);
                     affmorp(morp);
+                    morp.gagnant = 'O';
+                    affgagnant(morp);
+                    start = false;
                 }
-                else {
-                    if(strcmp(&ordre,"Owins")==0){
-                        jouercase(mo,cases,0);
+                else
+                {
+                    if (strcmp(&ordre, "Xwins") == 0)
+                    {
                         affmorp(morp);
-                        morp.gagnant='O';
+                        morp.gagnant = 'X';
                         affgagnant(morp);
-                        start=false;
+                        start = false;
                     }
-                    else{
-                        if(strcmp(&ordre,"Xwins")==0){
+                    else
+                    {
+                        if (strcmp(&ordre, "Xend") == 0)
+                        {
                             affmorp(morp);
-                            morp.gagnant='X';
+                            printf("Dernier coup joué par le joueur \n");
+                            morp.gagnant = ' ';
                             affgagnant(morp);
-                            start=false;
+                            start = false;
                         }
-                        else{
-                            if(strcmp(&ordre,"Xend")==0){
-                                affmorp(morp);
-                                printf("Dernier coup joué par le joueur \n");
-                                morp.gagnant=' ';
-                                affgagnant(morp);
-                                start=false;
-                            }
-                            else{
-                                affmorp(morp);
-                                morp.gagnant=' ';
-                                printf("Dernier coup joué par le serveur \n");
-                                affgagnant(morp);
-                                start=false;
-                            }
+                        else
+                        {
+                            affmorp(morp);
+                            morp.gagnant = ' ';
+                            printf("Dernier coup joué par le serveur \n");
+                            affgagnant(morp);
+                            start = false;
                         }
                     }
                 }
-                
             }
         }
-    
+    }
+
     //}
     printf("La partie est terminée.\n");
     // On ferme la ressource avant de quitter

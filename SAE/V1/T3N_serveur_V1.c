@@ -163,7 +163,6 @@ void affgagnant(struct morpion morp)
 	}
 }
 
-
 int main(int argc, char *argv[])
 {
 
@@ -242,7 +241,7 @@ int main(int argc, char *argv[])
 
 		printf("Débuter une partie ? (start/no)\n");
 		scanf("%s", start);
-		if (strcmp(start,"no") == 0)
+		if (strcmp(start, "no") == 0)
 		{
 			printf("Éteinte du jeu.\n");
 			exit(-5);
@@ -269,44 +268,44 @@ int main(int argc, char *argv[])
 				return 0;
 			default:
 				if (morp.coupjou != 10)
-				{	
+				{
 					int cases;
-					sscanf(buffer,"%d",&cases);
+					sscanf(buffer, "%d", &cases);
 					jouercase(mo, cases, 1);
 					affmorp(morp);
 					gagnant(mo);
-					if(morp.coupjou==9 && morp.gagnant==' '){
-						sprintf(buffer,"%s","Xend");
+					if (morp.coupjou == 9 && morp.gagnant == ' ')
+					{
+						sprintf(buffer, "%s", "Xend");
 						nb = write(socketDialogue, &buffer, LG_MESSAGE);
 						break;
 					}
-					if(morp.gagnant=='X'){
-						sprintf(buffer,"%s","Xwins");
+					if (morp.gagnant == 'X')
+					{
+						sprintf(buffer, "%s", "Xwins");
 						break;
 					}
-					else{
+					else
+					{
 						int caser = jouerobot(morp);
 						printf("\n\nCase choisie par l'IA : %d\n\n", caser);
 						jouercase(mo, caser, 0);
 						affmorp(morp);
 						gagnant(mo);
-						sprintf(buffer,"%s %d","continue",caser);
-						if(morp.gagnant=='O'){
-							sprintf(buffer,"%s %d","Owins",caser);
+						sprintf(buffer, "%s %d", "continue", caser);
+						if (morp.gagnant == 'O')
+						{
+							sprintf(buffer, "%s %d", "Owins", caser);
 							break;
 						}
 					}
 				}
 			}
 			nb = write(socketDialogue, &buffer, LG_MESSAGE);
-			}
-		printf("\nToutes les cases ont étés remplis, fin du jeu !\n");	
-			
-			
-			
-			
+		}
+		printf("\nToutes les cases ont étés remplis, fin du jeu !\n");
 	}
-	
+
 	close(socketDialogue);
 	close(socketEcoute);
 	return 0;
