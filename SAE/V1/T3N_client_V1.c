@@ -54,6 +54,7 @@ void affmorp(struct morpion morp)
         }
         printf("%c|", morp.tableaujou[i]);
     }
+    printf("\n");
 }
 
 void jouercase(struct morpion *morp, int coord, bool xo)
@@ -271,7 +272,7 @@ int main(int argc, char *argv[])
         }
     
     //}
-    printf("La partie est terminée");
+    printf("La partie est terminée.\n");
     // On ferme la ressource avant de quitter
     close(descripteurSocket);
 
