@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     int nb; /* nb d’octets écrits et lus */
     int lus;
     char messageRecu[LG_MESSAGE];
-    char buffer;
+    char buffer[LG_MESSAGE];
 
     char ip_dest[16];
     int port_dest;
@@ -195,8 +195,9 @@ int main(int argc, char *argv[])
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
 					}
-            jouercase(mo, buffer, 1);
-            nb = write(descripteurSocket, &buffer, 1);
+            jouercase(mo, cases, 1);
+            sprintf(buffer,"%d",cases);
+            nb = write(descripteurSocket, buffer, 4);
             switch (nb)
             {
             case -1: /* une erreur ! */
@@ -207,9 +208,9 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "La socket a été fermée par le client !\n\n");
                 return 0;
             default:
-                printf("\nCase choisie et envoyee : %d\n", buffer);
+                printf("\nCase choisie et envoyee : %d\n", cases);
             }
-            lus = read(descripteurSocket, &buffer, 1);
+            lus = read(descripteurSocket, buffer, LG_MESSAGE);
             switch (lus)
             {
             case -1:
@@ -222,7 +223,8 @@ int main(int argc, char *argv[])
             default:
                 char ordre;
                 int cases;
-                sscanf(&buffer, "%s %d" , &ordre, &cases );
+                sscanf(buffer, "%s %d" , &ordre, &cases );
+                printf("%s %d",&ordre,cases);
                 if(strcmp(&ordre,"continue")==0){
                     jouercase(mo, cases, 0);
                 }

@@ -177,9 +177,9 @@ int main(int argc, char *argv[])
 	int ecrits, lus;			  /* nb d’octets ecrits et lus */
 	int retour;
 
-	char buffer;
+	char buffer[LG_MESSAGE];
 
-	char start = ' ';
+	char start[LG_MESSAGE];
 
 	int nb;
 
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 		struct morpion morp;
 		struct morpion *mo = &morp;
 		initmorp(mo);
-		start = ' ';
+		char start[LG_MESSAGE];
 		// boucle d’attente de connexion : en théorie, un serveur attend indéfiniment !
 		memset(messageRecu, 0x00, LG_MESSAGE * sizeof(char));
 		printf("Attente d’une demande de connexion (quitter avec Ctrl-C)\n\n");
@@ -240,8 +240,9 @@ int main(int argc, char *argv[])
 		}
 
 		printf("Débuter une partie ? (start/no)\n");
-		scanf("%c", &start);
-		if (strcmp(&start,"no") == 0)
+		scanf("%s", start);
+		printf("%s",start);
+		if (strcmp(start,"no") == 0)
 		{
 			printf("Éteinte du jeu.\n");
 			exit(-5);
@@ -250,12 +251,13 @@ int main(int argc, char *argv[])
 		{
 			printf("Début de jeu !\n");
 		}
-		nb = write(socketDialogue, &start, 1);
+		nb = write(socketDialogue, start, LG_MESSAGE);
 		while (1)
 		{
 			time_t t;
 			srand(t);
-			lus = read(socketDialogue, &buffer, 1);
+			lus = read(socketDialogue, &buffer, LG_MESSAGE);
+			printf("%s",buffer);
 			switch (lus)
 			{
 			case -1:
@@ -270,33 +272,32 @@ int main(int argc, char *argv[])
 				if (morp.coupjou != 9)
 				{	
 					int cases;
-					sscanf(&buffer,"%d",&cases);
+					sscanf(buffer,"%d",&cases);
+					printf("%d",cases);
 					jouercase(mo, cases, 1);
 					affmorp(morp);
 					gagnant(mo);
 					if(morp.gagnant=='X'){
-						strcpy(&buffer,"Xwins");
+						sprintf(buffer,"%s","Xwins");
 					}
 					else{
 						int caser = jouerobot(morp);
 						printf("\n\nCase choisie par l'IA : %d\n\n", caser);
 						jouercase(mo, caser, 0);
 						gagnant(mo);
+						sprintf(buffer,"%s %d","continue",caser);
 						if(morp.gagnant=='O'){
-							char message_envoyer;
-							strcpy(&message_envoyer,"Owins");
-							int longu=strlen(&message_envoyer);
-							strcpy(message_envoyer,caser);
+							sprintf(buffer,"%s %d","Owins",caser);
 						}
 					}
 				}
 				else
 				{
-					strcpy(&buffer,"Xend");
+					sprintf(buffer,"%s","Xend");
 					break;
 				}
 			}
-			nb = write(socketDialogue, &buffer, 1);
+			nb = write(socketDialogue, &buffer, LG_MESSAGE);
 			}
 			
 			
