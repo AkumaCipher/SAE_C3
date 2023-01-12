@@ -162,34 +162,6 @@ void affgagnant(struct morpion morp)
 	}
 }
 
-// passage par valeur : on change pas les paramètres
-void lire_date(char *heure)
-{
-	FILE *fpipe;
-
-	fpipe = popen("date +'%X'", "r");
-	if (fpipe == NULL)
-	{
-		perror("popen");
-		exit(-1);
-	}
-	fgets(heure, LG_MESSAGE, fpipe);
-	pclose(fpipe);
-}
-
-void lire_heure(char *date)
-{
-	FILE *fpipe;
-
-	fpipe = popen("date +'%A, %d %B of %Y'", "r");
-	if (fpipe == NULL)
-	{
-		perror("popen");
-		exit(-1);
-	}
-	fgets(date, LG_MESSAGE, fpipe);
-	pclose(fpipe);
-}
 
 int main(int argc, char *argv[])
 {
@@ -205,7 +177,7 @@ int main(int argc, char *argv[])
 	int ecrits, lus;			  /* nb d’octets ecrits et lus */
 	int retour;
 
-	int buffer;
+	char buffer;
 
 	char start = ' ';
 
@@ -267,9 +239,9 @@ int main(int argc, char *argv[])
 			exit(-4);
 		}
 
-		printf("Débuter une partie ? (y/n)\n");
+		printf("Débuter une partie ? (start/no)\n");
 		scanf("%c", &start);
-		if (start == 'n')
+		if (strcmp(&start,"no") == 0)
 		{
 			printf("Éteinte du jeu.\n");
 			exit(-5);
@@ -279,7 +251,7 @@ int main(int argc, char *argv[])
 			printf("Début de jeu !\n");
 		}
 		nb = write(socketDialogue, &start, 1);
-		while (morp.coupjou != 9)
+		while (1)
 		{
 			time_t t;
 			srand(t);
@@ -296,23 +268,40 @@ int main(int argc, char *argv[])
 				return 0;
 			default:
 				if (morp.coupjou != 9)
-				{
-					jouercase(mo, buffer, 1);
+				{	
+					int cases;
+					sscanf(&buffer,%d,cases);
+					jouercase(mo, cases, 1);
 					affmorp(morp);
+					gagnant(mo);
+					if(morp.gagnant=="X"){
+						buffer="Xwins";
+					}
+					else{
+						int caser = jouerobot(morp);
+						printf("\n\nCase choisie par l'IA : %d\n\n", caser);
+						jouercase(mo, caser, 0);
+						gagnant(mo);
+						if(morp.gagnant=="O"){
+							buffer="Owins";
+							int longu=strlen(&buffer);
+							buffer[longu]=("%s",caser);
+						}
+					}
 				}
 				else
 				{
+					buffer="Xend";
 					break;
 				}
 			}
-			if (morp.coupjou == 9)
-			{
-				break;
-			}
-			buffer = jouerobot(morp);
-			printf("\n\nCase choisie par l'IA : %d\n\n", buffer);
-			jouercase(mo, buffer, 0);
 			nb = write(socketDialogue, &buffer, 1);
+			}
+			
+			
+			
+			
+			
 		}
 	}
 	printf("Toutes les cases ont étés remplis, fin du jeu !");

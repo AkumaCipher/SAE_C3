@@ -187,8 +187,14 @@ int main(int argc, char *argv[])
             time_t t;
             srand(t);
             affmorp(morp);
+            int cases;
             printf("\n\nChoisissez votre case : ");
-            scanf("%d", &buffer);
+            scanf("%s", &cases);
+            while (cases < 1 || cases > 9 || morp.tableaupos[cases]==0){
+            affmorp(morp);
+            printf("\n\nChoisissez votre case : ");
+            scanf("%s", &cases);
+					}
             jouercase(mo, buffer, 1);
             nb = write(descripteurSocket, &buffer, 1);
             switch (nb)
