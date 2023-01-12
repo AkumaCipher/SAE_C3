@@ -186,7 +186,12 @@ int main(int argc, char *argv[])
         {
             time_t t;
             srand(t);
-            affmorp(morp);
+            int f=0;
+            if(f==0){
+                affmorp(morp);
+                f++;
+            }
+            
             int cases;
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
