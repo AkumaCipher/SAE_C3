@@ -150,11 +150,11 @@ void affgagnant(struct morpion morp)
 	affmorp(morp);
 	if ('O' == morp.gagnant)
 	{
-		printf("\nLe gagnant est le joueur 2 avec le symbole O");
+		printf("\nLe gagnant est le joueur 2 avec le symbole O \n");
 	}
 	if ('X' == morp.gagnant)
 	{
-		printf("\nLe gagnant est le joueur 1 avec le symbole X");
+		printf("\nLe gagnant est le joueur 1 avec le symbole X \n");
 	}
 	if (' ' == morp.gagnant)
 	{
@@ -241,7 +241,6 @@ int main(int argc, char *argv[])
 
 		printf("Débuter une partie ? (start/no)\n");
 		scanf("%s", start);
-		printf("%s",start);
 		if (strcmp(start,"no") == 0)
 		{
 			printf("Éteinte du jeu.\n");
@@ -257,7 +256,6 @@ int main(int argc, char *argv[])
 			time_t t;
 			srand(t);
 			lus = read(socketDialogue, &buffer, LG_MESSAGE);
-			printf("%s",buffer);
 			switch (lus)
 			{
 			case -1:
@@ -273,17 +271,17 @@ int main(int argc, char *argv[])
 				{	
 					int cases;
 					sscanf(buffer,"%d",&cases);
-					printf("%d",cases);
 					jouercase(mo, cases, 1);
-					if(morp.coupjou==9){
+					affmorp(morp);
+					gagnant(mo);
+					if(morp.coupjou==9 && morp.gagnant==' '){
 						sprintf(buffer,"%s","Xend");
 						nb = write(socketDialogue, &buffer, LG_MESSAGE);
 						break;
 					}
-					affmorp(morp);
-					gagnant(mo);
 					if(morp.gagnant=='X'){
 						sprintf(buffer,"%s","Xwins");
+						break;
 					}
 					else{
 						int caser = jouerobot(morp);
@@ -294,19 +292,20 @@ int main(int argc, char *argv[])
 						sprintf(buffer,"%s %d","continue",caser);
 						if(morp.gagnant=='O'){
 							sprintf(buffer,"%s %d","Owins",caser);
+							break;
 						}
 					}
 				}
 			}
 			nb = write(socketDialogue, &buffer, LG_MESSAGE);
 			}
-			
+		printf("\nToutes les cases ont étés remplis, fin du jeu !\n");	
 			
 			
 			
 			
 	}
-	printf("Toutes les cases ont étés remplis, fin du jeu !");
+	
 	close(socketDialogue);
 	close(socketEcoute);
 	return 0;

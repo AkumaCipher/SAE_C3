@@ -59,11 +59,11 @@ void affmorp(struct morpion morp)
 void jouercase(struct morpion *morp, int coord, bool xo)
 {
     /* Fonction permettant de jour à la case demandée*/
-    if (coord < 1 || coord > 9)
+    if (coord < 1 || coord > 9) //Verif si case dans les "clous"
     {
     }
     else
-    {
+    { //L'indice est donnée par le joueur de 1 à 9 mais les indices tableau de 0 & 8 donc -1 
         morp->tableaupos[coord - 1] = 0;
         if (xo == 1)
         {
@@ -82,11 +82,11 @@ void affgagnant(struct morpion morp)
     affmorp(morp);
     if ('O' == morp.gagnant)
     {
-        printf("\nLe gagnant est le joueur 2 avec le symbole O");
+        printf("\nLe gagnant est le joueur 2 avec le symbole O \n");
     }
     if ('X' == morp.gagnant)
     {
-        printf("\nLe gagnant est le joueur 1 avec le symbole X");
+        printf("\nLe gagnant est le joueur 1 avec le symbole X \n");
     }
     if (' ' == morp.gagnant)
     {
@@ -97,7 +97,7 @@ void affgagnant(struct morpion morp)
 int main(int argc, char *argv[])
 {
 
-    bool start = false;
+    bool start = false; //Condition de début de partie
 
     int descripteurSocket;
     struct sockaddr_in sockaddrDistant;
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    while (1)
-    {
+    //while (1)
+    //{
         // Crée un socket de communication
 
         descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         }
         printf("Connexion au serveur %s:%d réussie!\n", ip_dest, port_dest);
 
-        start = false;
+        //start=false;
 
         lus = read(descripteurSocket, messageRecu, LG_MESSAGE * sizeof(char)); // ici appel bloquant
         switch (lus)
@@ -182,11 +182,16 @@ int main(int argc, char *argv[])
         struct morpion morp;
         struct morpion *mo = &morp;
         initmorp(mo); //Initialisation du morpion
+        int f=0;
         while (start == true) //Lorsque start est vrai, on démarre la partie (reçu du serveur)
         {
             time_t t;
             srand(t);
-            affmorp(morp);
+            if(f==0){
+                affmorp(morp);
+                f++;
+            }
+            
             int cases;
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
@@ -224,7 +229,6 @@ int main(int argc, char *argv[])
                 char ordre;
                 int cases;
                 sscanf(buffer, "%s %d" , &ordre, &cases );
-                printf("%s %d",&ordre,cases);
                 if(strcmp(&ordre,"continue")==0){
                     jouercase(mo, cases, 0);
                     affmorp(morp);
@@ -247,7 +251,7 @@ int main(int argc, char *argv[])
                         else{
                             if(strcmp(&ordre,"Xend")==0){
                                 affmorp(morp);
-                                printf("Dernier coup joué par le joueur");
+                                printf("Dernier coup joué par le joueur \n");
                                 morp.gagnant=' ';
                                 affgagnant(morp);
                                 start=false;
@@ -255,7 +259,7 @@ int main(int argc, char *argv[])
                             else{
                                 affmorp(morp);
                                 morp.gagnant=' ';
-                                printf("Dernier coup joué par le serveur");
+                                printf("Dernier coup joué par le serveur \n");
                                 affgagnant(morp);
                                 start=false;
                             }
@@ -266,7 +270,7 @@ int main(int argc, char *argv[])
             }
         }
     
-    }
+    //}
     printf("La partie est terminée");
     // On ferme la ressource avant de quitter
     close(descripteurSocket);
