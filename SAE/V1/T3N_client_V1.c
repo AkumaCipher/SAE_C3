@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
             int cases;
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
-            while (cases < 1 || cases > 9 || morp.tableaupos[cases]==0){
+            while (cases < 1 || cases > 9 || morp.tableaupos[cases-1]==0){ //Si le joueur rentre des bêtises
             affmorp(morp);
             printf("\n\nChoisissez votre case : ");
             scanf("%d", &cases);
@@ -227,6 +227,7 @@ int main(int argc, char *argv[])
                 printf("%s %d",&ordre,cases);
                 if(strcmp(&ordre,"continue")==0){
                     jouercase(mo, cases, 0);
+                    affmorp(morp);
                 }
                 else {
                     if(strcmp(&ordre,"Owins")==0){
@@ -244,10 +245,9 @@ int main(int argc, char *argv[])
                             start=false;
                         }
                         else{
-                            if(strcmp(&ordre,"Oend")==0){
-                                jouercase(mo,cases,0);
+                            if(strcmp(&ordre,"Xend")==0){
                                 affmorp(morp);
-                                printf("Dernier coup joué par le serveur");
+                                printf("Dernier coup joué par le joueur");
                                 morp.gagnant=' ';
                                 affgagnant(morp);
                                 start=false;
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
                             else{
                                 affmorp(morp);
                                 morp.gagnant=' ';
-                                printf("Dernier coup joué par le joueur");
+                                printf("Dernier coup joué par le serveur");
                                 affgagnant(morp);
                                 start=false;
                             }
@@ -265,8 +265,8 @@ int main(int argc, char *argv[])
                 
             }
         }
+    
     }
-
     printf("La partie est terminée");
     // On ferme la ressource avant de quitter
     close(descripteurSocket);

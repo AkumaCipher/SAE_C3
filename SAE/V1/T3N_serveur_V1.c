@@ -269,12 +269,17 @@ int main(int argc, char *argv[])
 				close(socketDialogue);
 				return 0;
 			default:
-				if (morp.coupjou != 9)
+				if (morp.coupjou != 10)
 				{	
 					int cases;
 					sscanf(buffer,"%d",&cases);
 					printf("%d",cases);
 					jouercase(mo, cases, 1);
+					if(morp.coupjou==9){
+						sprintf(buffer,"%s","Xend");
+						nb = write(socketDialogue, &buffer, LG_MESSAGE);
+						break;
+					}
 					affmorp(morp);
 					gagnant(mo);
 					if(morp.gagnant=='X'){
@@ -284,17 +289,13 @@ int main(int argc, char *argv[])
 						int caser = jouerobot(morp);
 						printf("\n\nCase choisie par l'IA : %d\n\n", caser);
 						jouercase(mo, caser, 0);
+						affmorp(morp);
 						gagnant(mo);
 						sprintf(buffer,"%s %d","continue",caser);
 						if(morp.gagnant=='O'){
 							sprintf(buffer,"%s %d","Owins",caser);
 						}
 					}
-				}
-				else
-				{
-					sprintf(buffer,"%s","Xend");
-					break;
 				}
 			}
 			nb = write(socketDialogue, &buffer, LG_MESSAGE);
