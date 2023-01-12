@@ -270,28 +270,29 @@ int main(int argc, char *argv[])
 				if (morp.coupjou != 9)
 				{	
 					int cases;
-					sscanf(&buffer,%d,cases);
+					sscanf(&buffer,"%d",&cases);
 					jouercase(mo, cases, 1);
 					affmorp(morp);
 					gagnant(mo);
-					if(morp.gagnant=="X"){
-						buffer="Xwins";
+					if(morp.gagnant=='X'){
+						strcpy(&buffer,"Xwins");
 					}
 					else{
 						int caser = jouerobot(morp);
 						printf("\n\nCase choisie par l'IA : %d\n\n", caser);
 						jouercase(mo, caser, 0);
 						gagnant(mo);
-						if(morp.gagnant=="O"){
-							buffer="Owins";
-							int longu=strlen(&buffer);
-							buffer[longu]=("%s",caser);
+						if(morp.gagnant=='O'){
+							char message_envoyer;
+							strcpy(&message_envoyer,"Owins");
+							int longu=strlen(&message_envoyer);
+							strcpy(message_envoyer,caser);
 						}
 					}
 				}
 				else
 				{
-					buffer="Xend";
+					strcpy(&buffer,"Xend");
 					break;
 				}
 			}
@@ -302,7 +303,6 @@ int main(int argc, char *argv[])
 			
 			
 			
-		}
 	}
 	printf("Toutes les cases ont étés remplis, fin du jeu !");
 	close(socketDialogue);

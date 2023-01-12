@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
             close(descripteurSocket);
             return 0;
         default:
-            if (strcmp(*messageRecu,"start")==0)
+            if (strcmp(messageRecu,"start")==0)
             {
                 start = true;
                 printf("Début de la partie !\n");
@@ -189,11 +189,11 @@ int main(int argc, char *argv[])
             affmorp(morp);
             int cases;
             printf("\n\nChoisissez votre case : ");
-            scanf("%s", &cases);
+            scanf("%d", &cases);
             while (cases < 1 || cases > 9 || morp.tableaupos[cases]==0){
             affmorp(morp);
             printf("\n\nChoisissez votre case : ");
-            scanf("%s", &cases);
+            scanf("%d", &cases);
 					}
             jouercase(mo, buffer, 1);
             nb = write(descripteurSocket, &buffer, 1);
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
             default:
                 char ordre;
                 int cases;
-                sscanf(&buffer, "%s %d" , ordre, cases );
+                sscanf(&buffer, "%s %d" , &ordre, &cases );
                 if(strcmp(&ordre,"continue")==0){
                     jouercase(mo, cases, 0);
                 }
@@ -230,14 +230,14 @@ int main(int argc, char *argv[])
                     if(strcmp(&ordre,"Owins")==0){
                         jouercase(mo,cases,0);
                         affmorp(morp);
-                        morp.gagnant="O";
+                        morp.gagnant='O';
                         affgagnant(morp);
                         start=false;
                     }
                     else{
                         if(strcmp(&ordre,"Xwins")==0){
                             affmorp(morp);
-                            morp.gagnant="X";
+                            morp.gagnant='X';
                             affgagnant(morp);
                             start=false;
                         }
@@ -246,13 +246,13 @@ int main(int argc, char *argv[])
                                 jouercase(mo,cases,0);
                                 affmorp(morp);
                                 printf("Dernier coup joué par le serveur");
-                                morp.gagnant=" ";
+                                morp.gagnant=' ';
                                 affgagnant(morp);
                                 start=false;
                             }
                             else{
                                 affmorp(morp);
-                                morp.gagnant=" ";
+                                morp.gagnant=' ';
                                 printf("Dernier coup joué par le joueur");
                                 affgagnant(morp);
                                 start=false;
