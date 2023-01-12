@@ -82,11 +82,11 @@ void affgagnant(struct morpion morp)
     affmorp(morp);
     if ('O' == morp.gagnant)
     {
-        printf("\nLe gagnant est le joueur 2 avec le symbole O");
+        printf("\nLe gagnant est le joueur 2 avec le symbole O \n");
     }
     if ('X' == morp.gagnant)
     {
-        printf("\nLe gagnant est le joueur 1 avec le symbole X");
+        printf("\nLe gagnant est le joueur 1 avec le symbole X \n");
     }
     if (' ' == morp.gagnant)
     {
@@ -224,7 +224,6 @@ int main(int argc, char *argv[])
                 char ordre;
                 int cases;
                 sscanf(buffer, "%s %d" , &ordre, &cases );
-                printf("%s %d",&ordre,cases);
                 if(strcmp(&ordre,"continue")==0){
                     jouercase(mo, cases, 0);
                     affmorp(morp);
@@ -247,7 +246,7 @@ int main(int argc, char *argv[])
                         else{
                             if(strcmp(&ordre,"Xend")==0){
                                 affmorp(morp);
-                                printf("Dernier coup joué par le joueur");
+                                printf("Dernier coup joué par le joueur \n");
                                 morp.gagnant=' ';
                                 affgagnant(morp);
                                 start=false;
@@ -255,7 +254,7 @@ int main(int argc, char *argv[])
                             else{
                                 affmorp(morp);
                                 morp.gagnant=' ';
-                                printf("Dernier coup joué par le serveur");
+                                printf("Dernier coup joué par le serveur \n");
                                 affgagnant(morp);
                                 start=false;
                             }

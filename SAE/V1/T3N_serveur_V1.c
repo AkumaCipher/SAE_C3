@@ -150,11 +150,11 @@ void affgagnant(struct morpion morp)
 	affmorp(morp);
 	if ('O' == morp.gagnant)
 	{
-		printf("\nLe gagnant est le joueur 2 avec le symbole O");
+		printf("\nLe gagnant est le joueur 2 avec le symbole O \n");
 	}
 	if ('X' == morp.gagnant)
 	{
-		printf("\nLe gagnant est le joueur 1 avec le symbole X");
+		printf("\nLe gagnant est le joueur 1 avec le symbole X \n");
 	}
 	if (' ' == morp.gagnant)
 	{
@@ -275,13 +275,13 @@ int main(int argc, char *argv[])
 					sscanf(buffer,"%d",&cases);
 					printf("%d",cases);
 					jouercase(mo, cases, 1);
-					if(morp.coupjou==9){
+					affmorp(morp);
+					gagnant(mo);
+					if(morp.coupjou==9 && morp.gagnant==' '){
 						sprintf(buffer,"%s","Xend");
 						nb = write(socketDialogue, &buffer, LG_MESSAGE);
 						break;
 					}
-					affmorp(morp);
-					gagnant(mo);
 					if(morp.gagnant=='X'){
 						sprintf(buffer,"%s","Xwins");
 					}
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 			
 			
 	}
-	printf("Toutes les cases ont étés remplis, fin du jeu !");
+	printf("Toutes les cases ont étés remplis, fin du jeu !\n");
 	close(socketDialogue);
 	close(socketEcoute);
 	return 0;
